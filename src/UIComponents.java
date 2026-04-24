@@ -1,14 +1,7 @@
-import java.awt.Color;
-import java.awt.Cursor;
-import java.awt.Font;
-import java.awt.GridLayout;
-import javax.swing.BorderFactory;
-import javax.swing.JButton;
-import javax.swing.JLabel;
-import javax.swing.JList;
-import javax.swing.JPanel;
-import javax.swing.JScrollPane;
-import javax.swing.JTextField;
+import java.awt.*;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+import javax.swing.*;
 
 /**
  * Factory class for creating and styling all UI components.
@@ -190,5 +183,300 @@ public class UIComponents {
         panel.add(new JLabel("Deadline (dd/MM/yyyy):"));
         panel.add(inputDeadline);
         return panel;
+    }
+
+    // Nambah ui kategori
+    public static final String[] KATEGORI = {
+        "Kuliah", "Pribadi", "Kerja", "Belanja", "Kesehatan", "Umum"
+    };
+    public static JComboBox<String> createCategoryComboBox() {
+        return new JComboBox<>(KATEGORI);
+    }
+    public static JLabel createCategoryLabel() {
+        JLabel label = new JLabel();
+        label.setFont(new Font("Segoe UI", Font.ITALIC, 14));
+        label.setForeground(COLOR_TEAL);
+        return label;
+    }
+    public static class ModernShadowPanel extends JPanel {
+        private int radius;
+        private int shadowSize;
+        private int shadowDrop;
+
+        public ModernShadowPanel(int radius, int shadowSize, Color bgColor) {
+            this.radius = radius;
+            this.shadowSize = shadowSize;
+            this.shadowDrop = 3; // Efek bayangan agak turun ke bawah
+            
+            setOpaque(false);
+            setBackground(bgColor);
+            
+            // Memberikan padding agar bayangan tidak terpotong oleh batas panel
+            setBorder(BorderFactory.createEmptyBorder(
+                shadowSize, shadowSize, shadowSize + shadowDrop, shadowSize
+            ));
+        }
+
+        @Override
+        protected void paintComponent(Graphics g) {
+            super.paintComponent(g);
+            Graphics2D g2 = (Graphics2D) g;
+            
+            g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+
+            int width = getWidth();
+            int height = getHeight();
+
+            // 1. Menggambar Efek Shadow
+            g2.setColor(new Color(0, 0, 0, 5)); // Hitam sangat transparan
+            for (int i = 0; i < shadowSize; i++) {
+                g2.fillRoundRect(
+                    i, i + shadowDrop, 
+                    width - (i * 2), height - (i * 2) - shadowDrop, 
+                    radius + (shadowSize - i), radius + (shadowSize - i)
+                );
+            }
+
+            // 2. Menggambar Background Utama
+            g2.setColor(getBackground());
+            g2.fillRoundRect(
+                shadowSize, shadowSize, 
+                width - (shadowSize * 2), height - (shadowSize * 2) - shadowDrop, 
+                radius, radius
+            );
+        }
+    }
+
+    // 1. MODERN PANEL (Dengan Rounded Corners)
+    public static class ModernPanel extends JPanel {
+        private int radius;
+
+        public ModernPanel(int radius, Color bgColor) {
+            this.radius = radius;
+            setOpaque(false); // Transparan agar background asli tidak menutupi lengkungan
+            setBackground(bgColor);
+        }
+
+        @Override
+        protected void paintComponent(Graphics g) {
+            super.paintComponent(g);
+            Graphics2D g2 = (Graphics2D) g;
+            g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+            g2.setColor(getBackground());
+            g2.fillRoundRect(0, 0, getWidth(), getHeight(), radius, radius);
+        }
+    }
+
+    // 6. MODERN GRADIENT PANEL (Panel dengan dua perpaduan warna & sudut melengkung)
+    public static class ModernGradientVerPanel extends JPanel {
+        private int radius;
+        private Color colorStart;
+        private Color colorEnd;
+
+        /**
+         * @param radius Tingkat kelengkungan sudut
+         * @param colorStart Warna pertama (dimulai dari atas/kiri)
+         * @param colorEnd Warna kedua (berakhir di bawah/kanan)
+         */
+        public ModernGradientVerPanel(int radius, Color colorStart, Color colorEnd) {
+            this.radius = radius;
+            this.colorStart = colorStart;
+            this.colorEnd = colorEnd;
+            setOpaque(false); // Transparan agar background asli tidak menutupi lengkungan
+        }
+
+        @Override
+        protected void paintComponent(Graphics g) {
+            super.paintComponent(g);
+            Graphics2D g2 = (Graphics2D) g;
+            
+            // Anti-aliasing agar lengkungan halus
+            g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+
+            // Membuat efek gradient (Diagonal dari kiri atas ke kanan bawah)
+            // Jika ingin horizontal: ganti getWidth(), getHeight() menjadi getWidth(), 0
+            // Jika ingin vertikal: ganti getWidth(), getHeight() menjadi 0, getHeight()
+            GradientPaint gradient = new GradientPaint(
+                0, 0, colorStart, 
+                0, getHeight(), colorEnd //ubah 0 menjadi getWidth() untuk gradient 
+            );
+            
+            g2.setPaint(gradient);
+            
+            // Menggambar panel dengan warna gradient
+            g2.fillRoundRect(0, 0, getWidth(), getHeight(), radius, radius);
+        }
+    }
+    public static class ModernGradientHorPanel extends JPanel {
+        private int radius;
+        private Color colorStart;
+        private Color colorEnd;
+
+        /**
+         * @param radius Tingkat kelengkungan sudut
+         * @param colorStart Warna pertama (dimulai dari atas/kiri)
+         * @param colorEnd Warna kedua (berakhir di bawah/kanan)
+         */
+        public ModernGradientHorPanel(int radius, Color colorStart, Color colorEnd) {
+            this.radius = radius;
+            this.colorStart = colorStart;
+            this.colorEnd = colorEnd;
+            setOpaque(false); // Transparan agar background asli tidak menutupi lengkungan
+        }
+
+        @Override
+        protected void paintComponent(Graphics g) {
+            super.paintComponent(g);
+            Graphics2D g2 = (Graphics2D) g;
+            
+            // Anti-aliasing agar lengkungan halus
+            g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+
+            // Membuat efek gradient (Diagonal dari kiri atas ke kanan bawah)
+            // Jika ingin horizontal: ganti getWidth(), getHeight() menjadi getWidth(), 0
+            // Jika ingin vertikal: ganti getWidth(), getHeight() menjadi 0, getHeight()
+            GradientPaint gradient = new GradientPaint(
+                0, 0, colorStart, 
+                getWidth(), getHeight(), colorEnd //ubah 0 menjadi getWidth() untuk gradient 
+            );
+            
+            g2.setPaint(gradient);
+            
+            // Menggambar panel dengan warna gradient
+            g2.fillRoundRect(0, 0, getWidth(), getHeight(), radius, radius);
+        }
+    }
+
+
+    // 2. MODERN BUTTON (Dengan Rounded Corners & Hover Effect)
+    public static class ModernButton extends JButton {
+        private int radius;
+        private Color colorNormal;
+        private Color colorHover;
+        private Color colorClick;
+
+        public void setColorHover(Color hover){
+            this.colorHover = hover;
+        }
+        public void setColorNormal(Color normal){
+            this.colorNormal = normal;
+        }
+        public ModernButton(String text, int radius, Color normal, Color hover, Color click) {
+            super(text);
+            this.radius = radius;
+            this.colorNormal = normal;
+            this.colorHover = hover;
+            this.colorClick = click;
+
+            setContentAreaFilled(false);
+            setFocusPainted(false);
+            setBorderPainted(false);
+            setBackground(colorNormal);
+            setForeground(Color.WHITE);
+            setFont(new Font("Segoe UI", Font.BOLD, 14));
+            setCursor(new Cursor(Cursor.HAND_CURSOR));
+
+            // Menambahkan efek hover dan klik
+            addMouseListener(new MouseAdapter() {
+                @Override
+                public void mouseEntered(MouseEvent e) {
+                    setBackground(colorHover);
+                }
+
+                @Override
+                public void mouseExited(MouseEvent e) {
+                    setBackground(colorNormal);
+                }
+
+                @Override
+                public void mousePressed(MouseEvent e) {
+                    setBackground(colorClick);
+                }
+
+                @Override
+                public void mouseReleased(MouseEvent e) {
+                    setBackground(colorHover);
+                }
+            });
+        }
+
+        @Override
+        protected void paintComponent(Graphics g) {
+            Graphics2D g2 = (Graphics2D) g;
+            g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+            g2.setColor(getBackground());
+            g2.fillRoundRect(0, 0, getWidth(), getHeight(), radius, radius);
+            super.paintComponent(g);
+        }
+    }
+    
+    // 3. MODERN TEXTFIELD (Dengan Padding & Rounded Outline)
+    public static class ModernTextField extends JTextField {
+        private int radius;
+        private Color borderColor;
+
+        public ModernTextField(int radius) {
+            this.radius = radius;
+            this.borderColor = new Color(200, 200, 200); // Warna border abu-abu default
+            setOpaque(false);
+            setFont(new Font("Segoe UI", Font.PLAIN, 14));
+            // Memberikan padding/ruang kosong di dalam textfield agar teks tidak menempel ke garis
+            setBorder(BorderFactory.createEmptyBorder(10, 15, 10, 15)); 
+        }
+
+        public void setBorderColor(Color color) {
+            this.borderColor = color;
+            repaint();
+        }
+
+        @Override
+        protected void paintComponent(Graphics g) {
+            Graphics2D g2 = (Graphics2D) g;
+            g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+            // Gambar background putih
+            g2.setColor(Color.WHITE);
+            g2.fillRoundRect(0, 0, getWidth() - 1, getHeight() - 1, radius, radius);
+            // Gambar garis border
+            g2.setColor(borderColor);
+            g2.drawRoundRect(0, 0, getWidth() - 1, getHeight() - 1, radius, radius);
+            
+            super.paintComponent(g);
+        }
+    }
+
+    // 4. MODERN PASSWORDFIELD (Khusus untuk halaman Login)
+    public static class ModernPasswordField extends JPasswordField {
+        private int radius;
+        private Color borderColor;
+
+        public ModernPasswordField(int radius) {
+            this.radius = radius;
+            this.borderColor = new Color(200, 200, 200);
+            setOpaque(false);
+            setFont(new Font("Segoe UI", Font.PLAIN, 14));
+            setBorder(BorderFactory.createEmptyBorder(10, 15, 10, 15));
+        }
+
+        @Override
+        protected void paintComponent(Graphics g) {
+            Graphics2D g2 = (Graphics2D) g;
+            g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+            g2.setColor(Color.WHITE);
+            g2.fillRoundRect(0, 0, getWidth() - 1, getHeight() - 1, radius, radius);
+            g2.setColor(borderColor);
+            g2.drawRoundRect(0, 0, getWidth() - 1, getHeight() - 1, radius, radius);
+            
+            super.paintComponent(g);
+        }
+    }
+
+    // 5. MODERN LABEL (Wrapper untuk mempermudah setting font)
+    public static class ModernLabel extends JLabel {
+        public ModernLabel(String text, int fontSize, boolean isBold, Color color) {
+            super(text);
+            setForeground(color);
+            int style = isBold ? Font.BOLD : Font.PLAIN;
+            setFont(new Font("Segoe UI", style, fontSize));
+        }
     }
 }
