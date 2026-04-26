@@ -9,11 +9,12 @@ import javax.swing.*;
  * Main application window for the To-Do-List app.
  *
  * Responsibilities:
- *  - Assemble UI components (via UIComponents) with modern styling
+ *  - Assemble UI components (via UIComponents)
  *  - Wire up button actions
  *  - Delegate data operations to TaskManager & FileManager
  *  - Support per-user data isolation via username
  */
+
 public class MainForm extends JFrame {
 
     // ── Helpers ───────────────────────────────────────────────────────────────
@@ -29,19 +30,19 @@ public class MainForm extends JFrame {
 
     // Modern buttons (pakai ModernButton dari UIComponents)
     private final UIComponents.ModernButton tambahButton = new UIComponents.ModernButton(
-        "✚ Tambah", 20,
+        "Tambah", 20,
         new Color(101, 77, 100), new Color(130, 100, 130), new Color(80, 57, 80)
     );
     private final UIComponents.ModernButton hapusButton = new UIComponents.ModernButton(
-        "🗑 Hapus", 20,
+        "Hapus", 20,
         new Color(180, 70, 70), new Color(210, 90, 90), new Color(150, 50, 50)
     );
     private final UIComponents.ModernButton editButton = new UIComponents.ModernButton(
-        "🖉 Edit", 20,
+        "Edit", 20,
         new Color(60, 120, 160), new Color(80, 150, 190), new Color(45, 100, 140)
     );
     private final UIComponents.ModernButton startButton = new UIComponents.ModernButton(
-        "▶ Start", 20,
+        "Start", 20,
         new Color(60, 150, 90), new Color(80, 180, 110), new Color(45, 125, 70)
     );
 

@@ -12,9 +12,9 @@ import javax.swing.JOptionPane;
 public class FileManager {
 
     // Per-user file names (instance fields)
-    private final String taskFile;
-    private final String deadlineFile;
-    private final String categoryFile;
+    private final String TASK_FILE;
+    private final String DEADLINE_FILE;
+    private final String CATEGORY_FILE;
 
     private final TaskManager taskManager;
 
@@ -25,9 +25,9 @@ public class FileManager {
     public FileManager(TaskManager taskManager, String username) {
         this.taskManager = taskManager;
         String safe = sanitizeUsername(username);
-        this.taskFile = safe + "-tasks.txt";
-        this.deadlineFile = safe + "-deadlines.txt";
-        this.categoryFile = safe + "-categories.txt";
+        this.TASK_FILE = safe + "-tasks.txt";
+        this.DEADLINE_FILE = safe + "-deadlines.txt";
+        this.CATEGORY_FILE = safe + "-categories.txt";
     }
 
     /**
@@ -40,7 +40,7 @@ public class FileManager {
 
     /** Load task names from file into the task model. */
     public void loadTasks() {
-        File file = new File(taskFile);
+        File file = new File(TASK_FILE);
         if (!file.exists()) return;
 
         try (BufferedReader reader = new BufferedReader(new FileReader(file))) {
@@ -55,7 +55,7 @@ public class FileManager {
 
     /** Load deadlines from file into the deadline model. */
     public void loadDeadlines() {
-        File file = new File(deadlineFile);
+        File file = new File(DEADLINE_FILE);
         if (!file.exists()) return;
 
         try (BufferedReader reader = new BufferedReader(new FileReader(file))) {
@@ -70,7 +70,7 @@ public class FileManager {
 
     // Method load kategorinye
     public void loadCategories() {
-    File file = new File(categoryFile);
+    File file = new File(CATEGORY_FILE);
     if (!file.exists()) {
         for (int i = 0; i < taskManager.getTaskModel().getSize(); i++) {
             taskManager.getCategoryModel().addElement("Umum");
@@ -90,7 +90,7 @@ public class FileManager {
 
     // Method sevv
     public void saveCategories() {
-    try (BufferedWriter writer = new BufferedWriter(new FileWriter(categoryFile))) {
+    try (BufferedWriter writer = new BufferedWriter(new FileWriter(CATEGORY_FILE))) {
         for (int i = 0; i < taskManager.getCategoryModel().getSize(); i++) {
             writer.write(taskManager.getCategoryModel().getElementAt(i));
             writer.newLine();
@@ -102,7 +102,7 @@ public class FileManager {
 
     /** Save all task names to file. */
     public void saveTasks() {
-        try (BufferedWriter writer = new BufferedWriter(new FileWriter(taskFile))) {
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter(TASK_FILE))) {
             for (int i = 0; i < taskManager.getTaskModel().getSize(); i++) {
                 writer.write(taskManager.getTaskModel().getElementAt(i));
                 writer.newLine();
@@ -114,7 +114,7 @@ public class FileManager {
 
     /** Save all deadlines to file. */
     public void saveDeadlines() {
-        try (BufferedWriter writer = new BufferedWriter(new FileWriter(deadlineFile))) {
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter(DEADLINE_FILE))) {
             for (int i = 0; i < taskManager.getDeadlineModel().getSize(); i++) {
                 writer.write(taskManager.getDeadlineModel().getElementAt(i));
                 writer.newLine();
