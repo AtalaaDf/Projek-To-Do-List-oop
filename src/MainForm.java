@@ -438,6 +438,7 @@ public class MainForm extends JFrame {
             // Fall back to default L&F silently
         }
 
-        java.awt.EventQueue.invokeLater(() -> new MainForm("user").setVisible(true));
+        // Tampilkan LoginForm terlebih dahulu, bukan MainForm langsung
+        java.awt.EventQueue.invokeLater(() -> new LoginForm().setVisible(true));
     }
 }
