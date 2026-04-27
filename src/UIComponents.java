@@ -479,4 +479,67 @@ public class UIComponents {
             setFont(new Font("Segoe UI", style, fontSize));
         }
     }
+
+    // ── Category color map ────────────────────────────────────────────────────
+public static Color getCategoryColor(String category) {
+    if (category == null) return new Color(150, 150, 150);
+    switch (category) {
+        case "Kuliah":    return new Color(70, 130, 180);
+        case "Pribadi":   return new Color(180, 100, 180);
+        case "Kerja":     return new Color(200, 120, 40);
+        case "Belanja":   return new Color(60, 160, 80);
+        case "Kesehatan": return new Color(200, 70, 70);
+        default:          return new Color(120, 120, 120); // Umum
+    }
+}
+
+// ── Custom cell renderer untuk task list (tampilkan kategori & warna) ─────
+public static class TaskListCellRenderer extends DefaultListCellRenderer {
+    private final javax.swing.DefaultListModel<String> categoryModel;
+
+    public TaskListCellRenderer(javax.swing.DefaultListModel<String> categoryModel) {
+        this.categoryModel = categoryModel;
+    }
+
+    @Override
+    public Component getListCellRendererComponent(
+            JList<?> list, Object value, int index,
+            boolean isSelected, boolean cellHasFocus) {
+
+        JLabel label = (JLabel) super.getListCellRendererComponent(
+                list, value, index, isSelected, cellHasFocus);
+
+        // Ambil kategori untuk index ini
+        String category = "Umum";
+        if (categoryModel != null && index >= 0 && index < categoryModel.getSize()) {
+            category = categoryModel.getElementAt(index);
+        }
+
+        // Tampilkan nama tugas + badge kategori
+        label.setText(value + "   [" + category + "]");
+        label.setBorder(BorderFactory.createEmptyBorder(6, 10, 6, 10));
+
+        if (!isSelected) {
+            // Warna teks badge kategori via HTML tidak bisa di JLabel biasa,
+            // jadi kita pakai warna background baris yang sedikit berbeda
+            Color catColor = getCategoryColor(category);
+            // Buat background row sedikit tinted
+            label.setBackground(blendColors(list.getBackground(), catColor, 0.08f));
+        }
+
+        return label;
+    }
+
+    /** Campur dua warna dengan rasio alpha (0.0 = full base, 1.0 = full overlay). */
+    private Color blendColors(Color base, Color overlay, float alpha) {
+        int r = (int)(base.getRed()   * (1 - alpha) + overlay.getRed()   * alpha);
+        int g = (int)(base.getGreen() * (1 - alpha) + overlay.getGreen() * alpha);
+        int b = (int)(base.getBlue()  * (1 - alpha) + overlay.getBlue()  * alpha);
+        return new Color(
+            Math.min(255, r),
+            Math.min(255, g),
+            Math.min(255, b)
+        );
+    }
+}
 }

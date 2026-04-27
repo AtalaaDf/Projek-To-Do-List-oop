@@ -45,6 +45,7 @@ public class MainForm extends JFrame {
         "Start", 20,
         new Color(60, 150, 90), new Color(80, 180, 110), new Color(45, 125, 70)
     );
+    private final JComboBox<String> filterKategori = new JComboBox<>();
 
     // ── Date format ───────────────────────────────────────────────────────────
     private static final DateTimeFormatter DATE_FORMAT =
@@ -126,12 +127,23 @@ public class MainForm extends JFrame {
         taskList.setBackground(new Color(255, 250, 255));
         taskList.setSelectionBackground(new Color(180, 140, 180));
         taskList.setSelectionForeground(Color.WHITE);
+        taskList.setCellRenderer(new UIComponents.TaskListCellRenderer(taskManager.getCategoryModel()));
         taskList.setBorder(BorderFactory.createEmptyBorder(8, 8, 8, 8));
 
         JScrollPane scrollPane = UIComponents.createScrollPane(taskList);
         scrollPane.setBorder(BorderFactory.createEmptyBorder());
         scrollPane.getViewport().setBackground(new Color(255, 250, 255));
+        // Panel filter kategori (di atas list)
+        JPanel filterPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 8, 4));
+        filterPanel.setOpaque(false);
+        filterPanel.add(new JLabel("Filter:"));
 
+        filterKategori.addItem("Semua");
+        for (String kat : UIComponents.KATEGORI) filterKategori.addItem(kat);
+        filterKategori.setPreferredSize(new Dimension(130, 28));
+        filterPanel.add(filterKategori);
+
+        listCard.add(filterPanel, BorderLayout.NORTH);
         listCard.add(scrollPane, BorderLayout.CENTER);
 
         // ── WEST: Buttons + info panel ────────────────────────────────────────
@@ -213,6 +225,7 @@ public class MainForm extends JFrame {
         hapusButton.addActionListener(e  -> onHapus());
         editButton.addActionListener(e   -> onEdit());
         startButton.addActionListener(e  -> onStart());
+        filterKategori.addActionListener(e -> applyFilter());
 
         taskList.addListSelectionListener(e -> {
             int idx = taskList.getSelectedIndex();
@@ -267,6 +280,7 @@ public class MainForm extends JFrame {
 
         String kategori = (String) kategoriBox.getSelectedItem();
         taskManager.addTask(kegiatan, parsedDeadline, kategori);
+        applyFilter();
         fileManager.saveAll();
     }
 
@@ -281,6 +295,7 @@ public class MainForm extends JFrame {
         }
 
         taskManager.removeTask(index);
+        applyFilter();
         fileManager.saveAll();
         deadlineLabel.setText("");
         categoryLabel.setText("");
@@ -324,6 +339,7 @@ public class MainForm extends JFrame {
         taskManager.editTask(index, newTask.trim(), parsedDeadline, newCategory);
         deadlineLabel.setText("📅 " + parsedDeadline);
         categoryLabel.setText("🏷 " + newCategory);
+        applyFilter();
         fileManager.saveAll();
     }
 
@@ -353,6 +369,39 @@ public class MainForm extends JFrame {
                     "Format Salah", JOptionPane.ERROR_MESSAGE);
             return null;
         }
+    }
+
+    private void applyFilter() {
+    String selected = (String) filterKategori.getSelectedItem();
+    if (selected == null || selected.equals("Semua")) {
+        taskList.setModel(taskManager.getTaskModel());
+        // Kembalikan renderer ke model utama
+        taskList.setCellRenderer(
+            new UIComponents.TaskListCellRenderer(taskManager.getCategoryModel())
+        );
+        return;
+    }
+
+    // Buat model sementara hanya untuk tampilan filter
+    DefaultListModel<String> filtered = new DefaultListModel<>();
+    for (int i = 0; i < taskManager.getTaskModel().getSize(); i++) {
+        if (selected.equals(taskManager.getCategory(i))) {
+            filtered.addElement(taskManager.getTask(i));
+        }
+    }
+
+    // Buat categoryModel sementara yang selaras dengan filtered
+    DefaultListModel<String> filteredCat = new DefaultListModel<>();
+    for (int i = 0; i < taskManager.getTaskModel().getSize(); i++) {
+        if (selected.equals(taskManager.getCategory(i))) {
+            filteredCat.addElement(taskManager.getCategory(i));
+        }
+    }
+
+    taskList.setModel(filtered);
+    taskList.setCellRenderer(
+        new UIComponents.TaskListCellRenderer(filteredCat)
+    );
     }
 
     /** Exposes FileManager so PomodoroForm can trigger saveAll(). */
