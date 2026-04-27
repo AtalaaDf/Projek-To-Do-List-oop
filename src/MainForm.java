@@ -419,6 +419,11 @@ public class MainForm extends JFrame {
         return taskManager;
     }
 
+    /** Exposes username for display in other forms. */
+    public String getUsername() {
+        return username;
+    }
+
     // ── Entry point ───────────────────────────────────────────────────────────
 
     public static void main(String[] args) {
