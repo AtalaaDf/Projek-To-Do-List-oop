@@ -1,6 +1,4 @@
-import java.awt.BorderLayout;
-import java.awt.FlowLayout;
-import java.awt.GridLayout;
+import java.awt.*;
 import javax.sound.sampled.Clip;
 import javax.swing.*;
 
@@ -27,14 +25,28 @@ public class PomodoroForm extends JFrame {
     private boolean isRunning  = false;
 
     // ── UI components ─────────────────────────────────────────────────────────
-    private final JLabel     lblTimerDisplay = UIComponents.createTimerDisplayLabel();
-    private final JLabel     lblTaskName     = UIComponents.createTaskNameLabel();
-    private final JTextField txtMenit        = UIComponents.createTimerInputField();
-    private final JTextField txtDetik        = UIComponents.createTimerInputField();
-    private final JButton    btnStartPause   = UIComponents.createStartPauseButton();
-    private final JButton    btnReset        = UIComponents.createResetButton();
-    private final JButton    btnBack         = UIComponents.createBackButton();
-    private final JButton    btnSelesai      = UIComponents.createSelesaiButton();
+    private final UIComponents.ModernLabel lblTimerDisplay = new UIComponents.ModernLabel("00:00", 96, true, new Color(101, 77, 100));
+    private final UIComponents.ModernLabel lblTaskName     = new UIComponents.ModernLabel("Nama tugas", 18, false, new Color(80, 60, 80));
+    
+    private final UIComponents.ModernTextField txtMenit    = new UIComponents.ModernTextField(12);
+    private final UIComponents.ModernTextField txtDetik    = new UIComponents.ModernTextField(12);
+
+    private final UIComponents.ModernButton btnStartPause = new UIComponents.ModernButton(
+        "Start", 15,
+        new Color(60, 150, 90), new Color(80, 180, 110), new Color(45, 125, 70)
+    );
+    private final UIComponents.ModernButton btnReset = new UIComponents.ModernButton(
+        "Reset", 15,
+        new Color(60, 120, 160), new Color(80, 150, 190), new Color(45, 100, 140)
+    );
+    private final UIComponents.ModernButton btnBack = new UIComponents.ModernButton(
+        "Kembali", 15,
+        new Color(180, 70, 70), new Color(210, 90, 90), new Color(150, 50, 50)
+    );
+    private final UIComponents.ModernButton btnSelesai = new UIComponents.ModernButton(
+        "Selesai", 15,
+        new Color(60, 40, 70), new Color(80, 60, 90), new Color(40, 27, 60)
+    );
 
     // ── Constructor ───────────────────────────────────────────────────────────
 
@@ -43,12 +55,22 @@ public class PomodoroForm extends JFrame {
         this.mainFormRef = mainFormRef;
         this.soundManager = mainFormRef.getSoundManager();
 
-        setTitle("Pomodoro");
+        setTitle("Pomodoro Timer — " + mainFormRef.getTitle().split(" — ")[1]);
         setDefaultCloseOperation(EXIT_ON_CLOSE);
+
+        // Styling inputs
+        txtMenit.setText("25");
+        txtDetik.setText("00");
+        txtMenit.setHorizontalAlignment(JTextField.CENTER);
+        txtDetik.setHorizontalAlignment(JTextField.CENTER);
+        txtMenit.setPreferredSize(new Dimension(70, 40));
+        txtDetik.setPreferredSize(new Dimension(70, 40));
+        txtMenit.setBorderColor(new Color(180, 140, 180));
+        txtDetik.setBorderColor(new Color(180, 140, 180));
 
         // Show the selected task name
         if (taskIndex != -1 && taskIndex < mainFormRef.getTaskManager().getSize()) {
-            lblTaskName.setText(mainFormRef.getTaskManager().getTask(taskIndex));
+            lblTaskName.setText(" Sedang mengerjakan: " + mainFormRef.getTaskManager().getTask(taskIndex));
         }
 
         // Build 1-second countdown timer
@@ -57,65 +79,105 @@ public class PomodoroForm extends JFrame {
         buildLayout();
         wireListeners();
 
-        pack();
+        setSize(1024, 660);
         setLocationRelativeTo(null);
     }
 
     // ── Layout ────────────────────────────────────────────────────────────────
 
     private void buildLayout() {
-        JPanel mainPanel   = new JPanel(new BorderLayout());
-        mainPanel.setBackground(UIComponents.COLOR_BACKGROUND);
-        mainPanel.setPreferredSize(new java.awt.Dimension(665, 400));
+        // Background utama: gradient vertikal seperti MainForm
+        UIComponents.ModernGradientVerPanel mainBackground = new UIComponents.ModernGradientVerPanel(
+            0,
+            new Color(212,187,193), // Biru Atas
+            new Color(101,77,100)
+        );
+        mainBackground.setLayout(new BorderLayout(0, 0));
+        mainBackground.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
 
-        // Header
-        JPanel headerPanel = UIComponents.createHeaderPanel();
-        headerPanel.add(UIComponents.createPomodoroTitleLabel());
+        // ── HEADER ────────────────────────────────────────────────────────────
+        UIComponents.ModernGradientHorPanel headerPanel = new UIComponents.ModernGradientHorPanel(
+            20,
+            new Color(101, 77, 100),
+            new Color(60, 40, 70)
+        );
+        headerPanel.setLayout(new BorderLayout());
+        headerPanel.setBorder(BorderFactory.createEmptyBorder(12, 24, 12, 24));
+        headerPanel.setPreferredSize(new Dimension(0, 70));
 
-        // Timer panel (green box with big countdown)
-        JPanel timerPanel = UIComponents.createTimerPanel();
-        timerPanel.setLayout(new java.awt.GridBagLayout());
-        timerPanel.add(lblTimerDisplay);
-        timerPanel.setPreferredSize(new java.awt.Dimension(270, 152));
+        UIComponents.ModernLabel titleLabel = new UIComponents.ModernLabel(
+            " Pomodoro Timer", 26, true, Color.WHITE
+        );
+        headerPanel.add(titleLabel, BorderLayout.WEST);
 
-        // Input row: [txtMenit] : [txtDetik]
-        JPanel inputRow = new JPanel(new FlowLayout(FlowLayout.CENTER, 8, 4));
-        inputRow.setOpaque(false);
-        inputRow.add(txtMenit);
-        inputRow.add(UIComponents.createColonLabel());
-        inputRow.add(txtDetik);
+        // ── CENTER CONTENT ────────────────────────────────────────────────────
+        JPanel contentPanel = new JPanel();
+        contentPanel.setOpaque(false);
+        contentPanel.setLayout(new BoxLayout(contentPanel, BoxLayout.Y_AXIS));
+        contentPanel.setBorder(BorderFactory.createEmptyBorder(20, 0, 0, 0));
 
-        // Button row: [Start/Pause] [Reset]
-        JPanel btnRow = new JPanel(new FlowLayout(FlowLayout.CENTER, 12, 4));
-        btnRow.setOpaque(false);
-        btnRow.add(btnStartPause);
-        btnRow.add(btnReset);
+        // Task name label container
+        lblTaskName.setAlignmentX(Component.CENTER_ALIGNMENT);
+        contentPanel.add(lblTaskName);
+        contentPanel.add(Box.createVerticalStrut(20));
 
-        // Right column: task name + timer panel + inputs + buttons
-        JPanel rightCol = new JPanel();
-        rightCol.setOpaque(false);
-        rightCol.setLayout(new BoxLayout(rightCol, BoxLayout.Y_AXIS));
-        rightCol.add(Box.createVerticalStrut(8));
-        rightCol.add(lblTaskName);
-        rightCol.add(Box.createVerticalStrut(6));
-        rightCol.add(timerPanel);
-        rightCol.add(Box.createVerticalStrut(8));
-        rightCol.add(inputRow);
-        rightCol.add(btnRow);
+        // Timer Card (Shadow Panel)
+        UIComponents.ModernShadowPanel timerCard = new UIComponents.ModernShadowPanel(
+            24, 15, new Color(255, 250, 255)
+        );
+        timerCard.setLayout(new BorderLayout());
+        timerCard.setPreferredSize(new Dimension(420, 240));
+        timerCard.setMaximumSize(new Dimension(420, 240));
+        
+        lblTimerDisplay.setHorizontalAlignment(SwingConstants.CENTER);
+        timerCard.add(lblTimerDisplay, BorderLayout.CENTER);
+        
+        contentPanel.add(timerCard);
+        contentPanel.add(Box.createVerticalStrut(30));
 
-        // Bottom nav: [Back] ............. [Selesai]
+        // Input Controls Row
+        JPanel inputPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 15, 0));
+        inputPanel.setOpaque(false);
+        
+        UIComponents.ModernLabel colonLabel = new UIComponents.ModernLabel(":", 28, true, new Color(101, 77, 100));
+        
+        inputPanel.add(txtMenit);
+        inputPanel.add(colonLabel);
+        inputPanel.add(txtDetik);
+        
+        contentPanel.add(inputPanel);
+        contentPanel.add(Box.createVerticalStrut(25));
+
+        // Main Action Buttons Row
+        JPanel actionBtnRow = new JPanel(new FlowLayout(FlowLayout.CENTER, 20, 0));
+        actionBtnRow.setOpaque(false);
+        
+        btnStartPause.setPreferredSize(new Dimension(130, 48));
+        btnReset.setPreferredSize(new Dimension(130, 48));
+        
+        actionBtnRow.add(btnStartPause);
+        actionBtnRow.add(btnReset);
+        
+        contentPanel.add(actionBtnRow);
+        contentPanel.add(Box.createVerticalGlue());
+
+        // ── BOTTOM NAV ────────────────────────────────────────────────────────
         JPanel navBar = new JPanel(new BorderLayout());
         navBar.setOpaque(false);
-        navBar.setBorder(BorderFactory.createEmptyBorder(8, 8, 8, 8));
-        navBar.add(btnBack,    BorderLayout.WEST);
+        navBar.setBorder(BorderFactory.createEmptyBorder(20, 5, 5, 5));
+        
+        btnBack.setPreferredSize(new Dimension(110, 42));
+        btnSelesai.setPreferredSize(new Dimension(110, 42));
+        
+        navBar.add(btnBack, BorderLayout.WEST);
         navBar.add(btnSelesai, BorderLayout.EAST);
 
         // Assemble
-        mainPanel.add(headerPanel, BorderLayout.NORTH);
-        mainPanel.add(rightCol,    BorderLayout.CENTER);
-        mainPanel.add(navBar,      BorderLayout.SOUTH);
+        mainBackground.add(headerPanel, BorderLayout.NORTH);
+        mainBackground.add(contentPanel, BorderLayout.CENTER);
+        mainBackground.add(navBar, BorderLayout.SOUTH);
 
-        setContentPane(mainPanel);
+        setContentPane(mainBackground);
     }
 
     // ── Listeners ─────────────────────────────────────────────────────────────
@@ -140,7 +202,7 @@ public class PomodoroForm extends JFrame {
             lblTimerDisplay.setText("00:00");
 
             Clip alarm = soundManager.playAlarm();
-            JOptionPane.showMessageDialog(getRootPane(), "Waktu Habis!");
+            JOptionPane.showMessageDialog(getRootPane(), "Waktu Habis! Istirahat sejenak.");
             soundManager.stopAlarm(alarm);
         }
     }
@@ -196,13 +258,11 @@ public class PomodoroForm extends JFrame {
         timerSwing.stop();
 
         int confirm = JOptionPane.showConfirmDialog(this,
-                "Tugas selesai! Hapus dari daftar beserta deadlinenya?",
+                "Tugas selesai! Hapus dari daftar?",
                 "Konfirmasi", JOptionPane.YES_NO_OPTION);
 
         if (confirm == JOptionPane.YES_OPTION) {
             mainFormRef.getTaskManager().removeTask(taskIndex);
-            // FileManager.saveAll() is called via MainForm reference
-            // We access it through the public getter added in MainForm
             mainFormRef.getFileManager().saveAll();
 
             mainFormRef.setVisible(true);
@@ -212,17 +272,12 @@ public class PomodoroForm extends JFrame {
 
     // ── Helpers ───────────────────────────────────────────────────────────────
 
-    /** Updates the timer label from current {@code totalDetik}. */
     private void updateTimerDisplay() {
         int menit = totalDetik / 60;
         int detik = totalDetik % 60;
         lblTimerDisplay.setText(String.format("%02d:%02d", menit, detik));
     }
 
-    /**
-     * Reads menit and detik fields, validates, and returns total seconds.
-     * Shows an error dialog and returns {@code null} on bad input.
-     */
     private Integer parseTimeInput() {
         try {
             int menit = Integer.parseInt(txtMenit.getText().trim());
@@ -244,19 +299,15 @@ public class PomodoroForm extends JFrame {
         }
     }
 
-    /**
-     * Same as {@link #parseTimeInput()} but returns 0 (instead of null)
-     * on bad input, used for reset where we just want a fallback.
-     */
     private Integer parseTimeInputSafe() {
         try {
             String m = txtMenit.getText().isEmpty() ? "0" : txtMenit.getText().trim();
             String d = txtDetik.getText().isEmpty() ? "0" : txtDetik.getText().trim();
             return (Integer.parseInt(m) * 60) + Integer.parseInt(d);
         } catch (NumberFormatException e) {
-            txtMenit.setText("0");
-            txtDetik.setText("0");
-            return 0;
+            txtMenit.setText("25");
+            txtDetik.setText("00");
+            return 25 * 60;
         }
     }
 }

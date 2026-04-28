@@ -15,7 +15,7 @@ public class LoginForm extends JFrame {
     public LoginForm() {
         setTitle("Aplikasi Produktivitas");
         setDefaultCloseOperation(EXIT_ON_CLOSE);
-        setSize(800, 600);
+        setSize(1024, 660);
         setLocationRelativeTo(null);
 
         // 1. BACKGROUND UTAMA: Menggunakan Gradient Panel
