@@ -198,6 +198,7 @@ public class UIComponents {
         label.setForeground(COLOR_TEAL);
         return label;
     }
+    //=====================================================================================
     public static class ModernShadowPanel extends JPanel {
         private int radius;
         private int shadowSize;

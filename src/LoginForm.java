@@ -15,7 +15,7 @@ public class LoginForm extends JFrame {
     public LoginForm() {
         setTitle("Aplikasi Produktivitas");
         setDefaultCloseOperation(EXIT_ON_CLOSE);
-        setSize(800, 600);
+        setSize(1024, 660);
         setLocationRelativeTo(null);
 
         // 1. BACKGROUND UTAMA: Menggunakan Gradient Panel
@@ -184,11 +184,17 @@ public class LoginForm extends JFrame {
                 }
             } else {
                 // --- PROSES REGISTRASI ---
-                simpanKeFile(user, pass);
-                JOptionPane.showMessageDialog(this, "Akun berhasil dibuat! Silakan masuk menggunakan akun tersebut.");
-                
-                // Otomatis klik tombol switch agar kembali ke tampilan Login setelah berhasil daftar
-                btnSwitch.doClick(); 
+                if (cekRegisData(user)) {
+                    JOptionPane.showMessageDialog(this, "Username sudah terdaftar! Silakan pilih username lain.", "Registrasi Gagal", JOptionPane.ERROR_MESSAGE);
+                    return;
+                    
+                } else {
+                    simpanKeFile(user, pass);
+                    JOptionPane.showMessageDialog(this, "Akun berhasil dibuat! Silakan masuk menggunakan akun tersebut.");
+                    
+                    // Otomatis klik tombol switch agar kembali ke tampilan Login setelah berhasil daftar
+                    btnSwitch.doClick(); 
+                }
             }
         });
 
@@ -196,7 +202,32 @@ public class LoginForm extends JFrame {
     }
 
     // --- Fungsi Bantuan untuk File System ---
+    private boolean cekRegisData(String inputUser){
+         File file = new File("akun.txt");
+        
+        // Jika file belum ada, berarti belum ada yang mendaftar sama sekali
+        if (!file.exists()) {
+            return false; 
+        }
 
+        try (BufferedReader reader = new BufferedReader(new FileReader(file))) {
+            String line;
+            while ((line = reader.readLine()) != null) {
+                // Memisahkan teks berdasarkan koma
+                String[] data = line.split(","); 
+                if (data.length == 2) {
+                    String savedUser = data[0];
+                    if (savedUser.equals(inputUser)) {
+                        return true; // Data ditemukan dan cocok!
+                    }
+                }
+            }
+        } catch (IOException ex) {
+            ex.printStackTrace();
+        }
+        
+        return false;
+    }
     // Menyimpan data registrasi ke file dengan format "username,password"
     private void simpanKeFile(String user, String pass) {
         try (BufferedWriter writer = new BufferedWriter(new FileWriter("akun.txt", true))) {

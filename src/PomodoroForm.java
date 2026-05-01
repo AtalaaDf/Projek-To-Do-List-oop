@@ -26,7 +26,7 @@ public class PomodoroForm extends JFrame {
 
     // ── UI components ─────────────────────────────────────────────────────────
     private final UIComponents.ModernLabel lblTimerDisplay = new UIComponents.ModernLabel("00:00", 96, true, new Color(101, 77, 100));
-    private final UIComponents.ModernLabel lblTaskName     = new UIComponents.ModernLabel("Nama tugas", 18, false, new Color(80, 50, 80));
+    private final UIComponents.ModernLabel lblTaskName     = new UIComponents.ModernLabel("Nama tugas", 18, false, new Color(80, 60, 80));
     
     private final UIComponents.ModernTextField txtMenit    = new UIComponents.ModernTextField(12);
     private final UIComponents.ModernTextField txtDetik    = new UIComponents.ModernTextField(12);
@@ -45,7 +45,7 @@ public class PomodoroForm extends JFrame {
     );
     private final UIComponents.ModernButton btnSelesai = new UIComponents.ModernButton(
         "Selesai", 15,
-        new Color(101, 77, 100), new Color(130, 100, 130), new Color(80, 57, 80)
+        new Color(60, 40, 70), new Color(80, 60, 90), new Color(40, 27, 60)
     );
 
     // ── Constructor ───────────────────────────────────────────────────────────
@@ -70,7 +70,7 @@ public class PomodoroForm extends JFrame {
 
         // Show the selected task name
         if (taskIndex != -1 && taskIndex < mainFormRef.getTaskManager().getSize()) {
-            lblTaskName.setText("🎯 Sedang mengerjakan: " + mainFormRef.getTaskManager().getTask(taskIndex));
+            lblTaskName.setText(" Sedang mengerjakan: " + mainFormRef.getTaskManager().getTask(taskIndex));
         }
 
         // Build 1-second countdown timer
@@ -79,7 +79,7 @@ public class PomodoroForm extends JFrame {
         buildLayout();
         wireListeners();
 
-        setSize(580, 620);
+        setSize(1024, 660);
         setLocationRelativeTo(null);
     }
 
@@ -89,8 +89,8 @@ public class PomodoroForm extends JFrame {
         // Background utama: gradient vertikal seperti MainForm
         UIComponents.ModernGradientVerPanel mainBackground = new UIComponents.ModernGradientVerPanel(
             0,
-            new Color(230, 210, 220),
-            new Color(150, 120, 150)
+            new Color(212,187,193), // Biru Atas
+            new Color(101,77,100)
         );
         mainBackground.setLayout(new BorderLayout(0, 0));
         mainBackground.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
@@ -106,7 +106,7 @@ public class PomodoroForm extends JFrame {
         headerPanel.setPreferredSize(new Dimension(0, 70));
 
         UIComponents.ModernLabel titleLabel = new UIComponents.ModernLabel(
-            "⏱  Pomodoro Timer", 26, true, Color.WHITE
+            " Pomodoro Timer", 26, true, Color.WHITE
         );
         headerPanel.add(titleLabel, BorderLayout.WEST);
 

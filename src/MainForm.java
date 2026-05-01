@@ -62,7 +62,6 @@ public class MainForm extends JFrame {
 
         setTitle("To-Do-List — " + username);
         setDefaultCloseOperation(EXIT_ON_CLOSE);
-
         // Attach models
         taskList.setModel(taskManager.getTaskModel());
 
@@ -92,8 +91,8 @@ public class MainForm extends JFrame {
         // Background utama: gradient vertikal seperti LoginForm
         UIComponents.ModernGradientVerPanel mainBackground = new UIComponents.ModernGradientVerPanel(
             0,
-            new Color(230, 210, 220),
-            new Color(150, 120, 150)
+            new Color(212,187,193), // Biru Atas
+            new Color(101,77,100)
         );
         mainBackground.setLayout(new BorderLayout(0, 0));
         mainBackground.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
@@ -109,10 +108,10 @@ public class MainForm extends JFrame {
         headerPanel.setPreferredSize(new Dimension(0, 80));
 
         UIComponents.ModernLabel titleLabel = new UIComponents.ModernLabel(
-            "📋  To-Do-List", 32, true, Color.WHITE
+            "To-Do-List", 32, true, Color.WHITE
         );
         UIComponents.ModernLabel userLabel = new UIComponents.ModernLabel(
-            "👤  " + username, 14, false, new Color(220, 200, 220)
+            " " + username, 14, false, new Color(220, 200, 220)
         );
         userLabel.setHorizontalAlignment(SwingConstants.RIGHT);
 
@@ -230,7 +229,7 @@ public class MainForm extends JFrame {
         mainBackground.add(centerWrapper, BorderLayout.CENTER);
 
         setContentPane(mainBackground);
-        setPreferredSize(new Dimension(720, 480));
+        setPreferredSize(new Dimension(730, 490));
     }
 
     // ── Listeners ─────────────────────────────────────────────────────────────
@@ -353,8 +352,8 @@ public class MainForm extends JFrame {
         String newCategory = (String) kategoriBox.getSelectedItem();
 
         taskManager.editTask(index, newTask.trim(), parsedDeadline, newCategory);
-        deadlineLabel.setText("📅 " + parsedDeadline);
-        categoryLabel.setText("🏷 " + newCategory);
+        deadlineLabel.setText(" " + parsedDeadline);
+        categoryLabel.setText(" " + newCategory);
         applyFilter();
         fileManager.saveAll();
     }
