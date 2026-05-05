@@ -5,30 +5,18 @@ import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import javax.swing.*;
 
-/**
- * Main application window for the To-Do-List app.
- *
- * Responsibilities:
- *  - Assemble UI components (via UIComponents)
- *  - Wire up button actions
- *  - Delegate data operations to TaskManager & FileManager
- *  - Support per-user data isolation via username
- */
 
 public class MainForm extends JFrame {
 
-    // ── Helpers ───────────────────────────────────────────────────────────────
     private final TaskManager taskManager   = new TaskManager();
     private final FileManager fileManager;
     private final SoundManager soundManager = new SoundManager();
     private final String username;
 
-    // ── UI components ─────────────────────────────────────────────────────────
     private final JList<String> taskList    = UIComponents.createTaskList();
     private final JLabel deadlineLabel      = UIComponents.createDeadlineLabel();
     private final JLabel categoryLabel      = UIComponents.createCategoryLabel();
 
-    // Modern buttons (pakai ModernButton dari UIComponents)
     private final UIComponents.ModernButton tambahButton = new UIComponents.ModernButton(
         "Tambah", 20,
         new Color(101, 77, 100), new Color(130, 100, 130), new Color(80, 57, 80)
@@ -51,53 +39,43 @@ public class MainForm extends JFrame {
     );
     private final JComboBox<String> filterKategori = new JComboBox<>();
 
-    // ── Date format ───────────────────────────────────────────────────────────
     private static final DateTimeFormatter DATE_FORMAT =
             DateTimeFormatter.ofPattern("dd/MM/yyyy");
 
-    // ── Constructor (dengan username untuk per-user data) ─────────────────────
     public MainForm(String username) {
         this.username = username;
         this.fileManager = new FileManager(taskManager, username);
 
         setTitle("To-Do-List — " + username);
         setDefaultCloseOperation(EXIT_ON_CLOSE);
-        // Attach models
         taskList.setModel(taskManager.getTaskModel());
 
-        // Load persisted data (per-user)
         fileManager.loadTasks();
         fileManager.loadDeadlines();
         fileManager.loadCategories();
 
-        // Build layout
         buildLayout();
 
-        // Wire listeners
         wireListeners();
 
         pack();
         setLocationRelativeTo(null);
     }
 
-    /** Backward-compatible no-arg constructor (default user). */
     public MainForm() {
         this("user");
     }
 
-    // ── Layout ────────────────────────────────────────────────────────────────
 
     private void buildLayout() {
-        // Background utama: gradient vertikal seperti LoginForm
         UIComponents.ModernGradientVerPanel mainBackground = new UIComponents.ModernGradientVerPanel(
             0,
-            new Color(212,187,193), // Biru Atas
+            new Color(212,187,193),
             new Color(101,77,100)
         );
         mainBackground.setLayout(new BorderLayout(0, 0));
         mainBackground.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
 
-        // ── HEADER ────────────────────────────────────────────────────────────
         UIComponents.ModernGradientHorPanel headerPanel = new UIComponents.ModernGradientHorPanel(
             20,
             new Color(101, 77, 100),
@@ -115,11 +93,9 @@ public class MainForm extends JFrame {
         );
         userLabel.setHorizontalAlignment(SwingConstants.RIGHT);
 
-        // Logout button styling
         logoutButton.setPreferredSize(new Dimension(90, 32));
         logoutButton.setMaximumSize(new Dimension(90, 32));
 
-        // Panel untuk user dan logout button
         JPanel headerRightPanel = new JPanel();
         headerRightPanel.setOpaque(false);
         headerRightPanel.setLayout(new FlowLayout(FlowLayout.RIGHT, 12, 0));
@@ -129,14 +105,12 @@ public class MainForm extends JFrame {
         headerPanel.add(titleLabel, BorderLayout.WEST);
         headerPanel.add(headerRightPanel, BorderLayout.EAST);
 
-        // ── CENTER: Task list card ────────────────────────────────────────────
         UIComponents.ModernShadowPanel listCard = new UIComponents.ModernShadowPanel(
             20, 12, new Color(255, 250, 255)
         );
         listCard.setLayout(new BorderLayout());
         listCard.setBorder(BorderFactory.createEmptyBorder(12, 12, 12, 12));
 
-        // Style task list
         taskList.setFont(new Font("Segoe UI", Font.PLAIN, 18));
         taskList.setBackground(new Color(255, 250, 255));
         taskList.setSelectionBackground(new Color(180, 140, 180));
@@ -147,7 +121,6 @@ public class MainForm extends JFrame {
         JScrollPane scrollPane = UIComponents.createScrollPane(taskList);
         scrollPane.setBorder(BorderFactory.createEmptyBorder());
         scrollPane.getViewport().setBackground(new Color(255, 250, 255));
-        // Panel filter kategori (di atas list)
         JPanel filterPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 8, 4));
         filterPanel.setOpaque(false);
         filterPanel.add(new JLabel("Filter:"));
@@ -160,14 +133,12 @@ public class MainForm extends JFrame {
         listCard.add(filterPanel, BorderLayout.NORTH);
         listCard.add(scrollPane, BorderLayout.CENTER);
 
-        // ── WEST: Buttons + info panel ────────────────────────────────────────
         JPanel leftPanel = new JPanel();
         leftPanel.setOpaque(false);
         leftPanel.setLayout(new BoxLayout(leftPanel, BoxLayout.Y_AXIS));
         leftPanel.setPreferredSize(new Dimension(200, 0));
         leftPanel.setBorder(BorderFactory.createEmptyBorder(0, 0, 0, 16));
 
-        // Tombol-tombol (ModernButton, full width di kolom kiri)
         Dimension btnSize = new Dimension(180, 44);
         tambahButton.setPreferredSize(btnSize);
         tambahButton.setMaximumSize(btnSize);
@@ -194,7 +165,6 @@ public class MainForm extends JFrame {
         leftPanel.add(startButton);
         leftPanel.add(Box.createVerticalStrut(20));
 
-        // Info card: deadline + kategori
         UIComponents.ModernShadowPanel infoCard = new UIComponents.ModernShadowPanel(
             16, 10, new Color(240, 230, 245)
         );
@@ -218,7 +188,6 @@ public class MainForm extends JFrame {
 
         leftPanel.add(infoCard);
 
-        // ── CENTER wrapper ────────────────────────────────────────────────────
         JPanel centerWrapper = new JPanel(new BorderLayout(16, 0));
         centerWrapper.setOpaque(false);
         centerWrapper.setBorder(BorderFactory.createEmptyBorder(16, 0, 0, 0));
@@ -232,7 +201,6 @@ public class MainForm extends JFrame {
         setPreferredSize(new Dimension(730, 490));
     }
 
-    // ── Listeners ─────────────────────────────────────────────────────────────
 
     private void wireListeners() {
         tambahButton.addActionListener(e -> onTambah());
@@ -261,7 +229,6 @@ public class MainForm extends JFrame {
         });
     }
 
-    // ── Button actions ────────────────────────────────────────────────────────
 
     private void onTambah() {
         JTextField inputKegiatan = new JTextField();
@@ -378,18 +345,14 @@ public class MainForm extends JFrame {
                 "Konfirmasi Logout", JOptionPane.YES_NO_OPTION);
 
         if (confirm == JOptionPane.YES_OPTION) {
-            // Simpan semua data sebelum logout
             fileManager.saveAll();
-            
-            // Buka LoginForm baru
+
             new LoginForm().setVisible(true);
-            
-            // Tutup MainForm
+
             this.dispose();
         }
     }
 
-    // ── Helpers ───────────────────────────────────────────────────────────────
 
     private String parseDeadline(String input) {
         try {
@@ -407,14 +370,12 @@ public class MainForm extends JFrame {
     String selected = (String) filterKategori.getSelectedItem();
     if (selected == null || selected.equals("Semua")) {
         taskList.setModel(taskManager.getTaskModel());
-        // Kembalikan renderer ke model utama
         taskList.setCellRenderer(
             new UIComponents.TaskListCellRenderer(taskManager.getCategoryModel())
         );
         return;
     }
 
-    // Buat model sementara hanya untuk tampilan filter
     DefaultListModel<String> filtered = new DefaultListModel<>();
     for (int i = 0; i < taskManager.getTaskModel().getSize(); i++) {
         if (selected.equals(taskManager.getCategory(i))) {
@@ -422,7 +383,6 @@ public class MainForm extends JFrame {
         }
     }
 
-    // Buat categoryModel sementara yang selaras dengan filtered
     DefaultListModel<String> filteredCat = new DefaultListModel<>();
     for (int i = 0; i < taskManager.getTaskModel().getSize(); i++) {
         if (selected.equals(taskManager.getCategory(i))) {
@@ -436,27 +396,22 @@ public class MainForm extends JFrame {
     );
     }
 
-    /** Exposes FileManager so PomodoroForm can trigger saveAll(). */
     public FileManager getFileManager() {
         return fileManager;
     }
 
-    /** Exposes SoundManager so other forms (e.g. PomodoroForm) can reuse it. */
     public SoundManager getSoundManager() {
         return soundManager;
     }
 
-    /** Exposes TaskManager so other forms can access task data. */
     public TaskManager getTaskManager() {
         return taskManager;
     }
 
-    /** Exposes username for display in other forms. */
     public String getUsername() {
         return username;
     }
 
-    // ── Entry point ───────────────────────────────────────────────────────────
 
     public static void main(String[] args) {
         try {
@@ -467,10 +422,8 @@ public class MainForm extends JFrame {
                 }
             }
         } catch (Exception e) {
-            // Fall back to default L&F silently
         }
 
-        // Tampilkan LoginForm terlebih dahulu, bukan MainForm langsung
         java.awt.EventQueue.invokeLater(() -> new LoginForm().setVisible(true));
     }
 }
